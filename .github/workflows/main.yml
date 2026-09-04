@@ -1,6 +1,5 @@
-# Quickstart: Black Duck Security Scan Action with polaris:
-#     https://docs.blackduck.com/r/bridge/latest/bridge-cli-guide/quickstart-black-duck-security-scan-action-with-polaris.html
 name: Polaris Security Scan
+
 on:
   push:
     branches:
@@ -9,6 +8,7 @@ on:
       - develop
       - stage
       - release
+
   pull_request:
     branches:
       - main
@@ -16,50 +16,73 @@ on:
       - develop
       - stage
       - release
+
   workflow_dispatch: {}
-# GitHub token permissions for post-scan actions. Required for built-in GITHUB_TOKEN; if using a PAT with equivalent scopes, permissions block can be commented out.
+
 permissions:
-  contents: write               # Required to push changes or create fix branches
-  pull-requests: write          # Required to add comments or create fix pull requests
-  issues: write                 # Required to create github issues
+  contents: write
+  pull-requests: write
+  issues: write
+
 jobs:
   polaris:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Source
         uses: actions/checkout@v5
+
       - name: Debug Variables
         run: |
-
           echo "POLARIS_URL='${{ vars.POLARIS_URL }}'"
+
+      - name: Call Pre-Scan API
+        run: |
+          curl -X POST \
+            "https://<polaris-url>/api/portfolios/<portfolioId>/applications/<applicationId>/projects/<projectId>/branches" \
+            -H "accept: application/vnd.polaris.portfolios.branches-1+json" \
+            -H "Api-Token: ${{ secrets.POLARIS_ACCESS_TOKEN }}" \
+            -H "Content-Type: application/vnd.polaris.portfolios.branches-1+json" \
+            -H "X-Client-Source: dev-portal" \
+            -d '{
+              "name": "main",
+              "source": "CI",
+              "isDefault": false
+            }'
 
       - name: Polaris Security Scan
         id: polaris-scan
         uses: blackduck-inc/black-duck-security-scan@v2
+
         with:
-          ### SCANNING: Required fields
-          polaris_server_url: https://poc.polaris.blackduck.com
+          # Required
+          polaris_server_url: ${{ vars.POLARIS_URL }}
           polaris_access_token: ${{ secrets.POLARIS_ACCESS_TOKEN }}
-          ### ASSESSMENT TYPES
-          polaris_assessment_types: SAST  # Comma-separated list: SAST,SCA,DAST
+
+          # Assessment Types
+          polaris_assessment_types: SAST
           polaris_test_sast_type: SAST-RAPID
-          ### SCANNING: Optional fields
+
+          # Scan Locations
           polaris_test_sast_location: hybrid
           polaris_test_sca_location: hybrid
-          ### Configuration if Bridge diagnostic files needs to be uploaded
-          include_diagnostics: true
-          ### GITHUB TOKEN
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # Required when PR comments or sarif reports enabled
-          polaris_prComment_enabled: true
-          ### FIX PULL REQUEST CREATION
-          polaris_fixpr_enabled: true
-          polaris_externalIssues_create: true
-          ### SARIF report parameters
-          polaris_reports_sarif_create: true  # Create SARIF report and upload it as artifact
-          
-          ### Mark build status if policy violating issues are found
-          # mark_build_status: failure # Set to success, failure, or skip
 
-          ### SCANNING: Optional fields
+          # Diagnostics
+          include_diagnostics: true
+
+          # GitHub Integration
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          polaris_prComment_enabled: true
+
+          # Fix PR Creation
+          polaris_fixpr_enabled: true
+
+          # External Issues
+          polaris_externalIssues_create: true
+
+          # SARIF Report
+          polaris_reports_sarif_create: true
+
+          # Optional
+          # mark_build_status: failure
           # polaris_prComment_enabled: false
- 
