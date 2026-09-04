@@ -38,17 +38,17 @@ jobs:
 
       - name: Call Pre-Scan API
         run: |
-          curl -X POST \
-            "https://<polaris-url>/api/portfolios/<portfolioId>/applications/<applicationId>/projects/<projectId>/branches" \
-            -H "accept: application/vnd.polaris.portfolios.branches-1+json" \
-            -H "Api-Token: ${{ secrets.POLARIS_ACCESS_TOKEN }}" \
-            -H "Content-Type: application/vnd.polaris.portfolios.branches-1+json" \
-            -H "X-Client-Source: dev-portal" \
-            -d '{
-              "name": "main",
-              "source": "CI",
-              "isDefault": false
-            }'
+          curl -X 'POST' \
+          'https://poc.polaris.blackduck.com/api/portfolios/a0fcefe1-1955-4a31-9ba6-e6eafc19347f/applications/6d39e5b8-28c7-48a4-a678-e1500c846e39/projects/d153e305-bf7a-426c-a819-d722db7b6465/branches' \
+          -H 'accept: application/vnd.polaris.portfolios.branches-1+json' \
+          -H 'Api-Token: rvb1uibn0h59d9e6tnba154883v1hvv500lkvnc8ivordthuodmtape4fp636eghp0t8fi6pfniki' \
+          -H 'Content-Type: application/vnd.polaris.portfolios.branches-1+json' \
+          -H 'X-Client-Source: dev-portal' \
+          -d '{
+            "name": "main",
+            "source": "CI",
+            "isDefault": false
+          }'
 
       - name: Polaris Security Scan
         id: polaris-scan
