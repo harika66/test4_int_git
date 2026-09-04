@@ -53,36 +53,29 @@ jobs:
       - name: Polaris Security Scan
         id: polaris-scan
         uses: blackduck-inc/black-duck-security-scan@v2
-
         with:
-          # Required
-          polaris_server_url: ${{ vars.POLARIS_URL }}
+          ### SCANNING: Required fields
+          polaris_server_url: https://poc.polaris.blackduck.com
           polaris_access_token: ${{ secrets.POLARIS_ACCESS_TOKEN }}
-
-          # Assessment Types
-          polaris_assessment_types: SAST
+          ### ASSESSMENT TYPES
+          polaris_assessment_types: SAST  # Comma-separated list: SAST,SCA,DAST
           polaris_test_sast_type: SAST-RAPID
-
-          # Scan Locations
+          ### SCANNING: Optional fields
           polaris_test_sast_location: hybrid
           polaris_test_sca_location: hybrid
-
-          # Diagnostics
+          ### Configuration if Bridge diagnostic files needs to be uploaded
           include_diagnostics: true
-
-          # GitHub Integration
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ### GITHUB TOKEN
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Required when PR comments or sarif reports enabled
           polaris_prComment_enabled: true
-
-          # Fix PR Creation
+          ### FIX PULL REQUEST CREATION
           polaris_fixpr_enabled: true
-
-          # External Issues
           polaris_externalIssues_create: true
+          ### SARIF report parameters
+          polaris_reports_sarif_create: true  # Create SARIF report and upload it as artifact
 
-          # SARIF Report
-          polaris_reports_sarif_create: true
+          ### Mark build status if policy violating issues are found
+          # mark_build_status: failure # Set to success, failure, or skip
 
-          # Optional
-          # mark_build_status: failure
+          ### SCANNING: Optional fields
           # polaris_prComment_enabled: false
